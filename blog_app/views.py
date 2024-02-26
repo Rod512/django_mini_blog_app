@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponseRedirect
+from .forms import SignupForm, LoginForm
+
 
 def home(request):
     return render(request, 'blog_app/home.html')
@@ -12,11 +14,13 @@ def contact(request):
 def dasboard(request):
     return render(request, 'blog_app/dashboard.html')
 
-def signup(request):
-    return render(request, 'blog_app/signup.html')
+def user_signup(request):
+    form = SignupForm()
+    return render(request, 'blog_app/signup.html', {'form': form})
 
-def login(request):
-    return render(request, 'blog_app/login.html')
+def user_login(request):
+    form = LoginForm()
+    return render(request, 'blog_app/login.html', {'form':form})
 
 def user_logout(request):
-    pass
+    return HttpResponseRedirect('/')
