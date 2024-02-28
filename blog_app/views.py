@@ -3,6 +3,7 @@ from .forms import SignupForm, LoginForm, Postform
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from .models import Post
+from django.contrib.auth.models import Group
 
 
 def home(request):
@@ -17,8 +18,10 @@ def contact(request):
 
 def dasboard(request):
     if request.user.is_authenticated:
-        posts = Post.objects.all() 
-        return render(request, 'blog_app/dashboard.html',{'posts':posts})
+        posts = Post.objects.all()
+        user = request.user
+        full_name = user.get_full_name() 
+        return render(request, 'blog_app/dashboard.html',{'posts':posts,'full_name':full_name})
     else:
         return HttpResponseRedirect('/login/')
 
@@ -75,12 +78,23 @@ def add_post(request):
 
 def update_post(request, id):
     if request.user.is_authenticated:
-        return render(request, 'blog_app/updatepost.html')
+        if request.method == 'POST':
+            pi = Post.objects.get(pk=id)
+            form = Postform(request.POST, instance=pi)
+            if form.is_valid():
+                form.save()
+        else:
+            pi = Post.objects.get(pk=id)
+            form = Postform(instance=pi)
+        return render(request, 'blog_app/updatepost.html',{'form':form})
     else:
         return HttpResponseRedirect('/login/')
     
 def delete_post(request, id):
     if request.user.is_authenticated:
+        if request.method == 'POST':
+            pi = Post.objects.get(pk = id)
+            pi.delete()
         return HttpResponseRedirect('/dashboard/')
     else:
         return HttpResponseRedirect('/login/')
